@@ -1,0 +1,57 @@
+#*****************************************************#
+环境anaconda3+tensorflow2.0.0+python3.7.7+cuda10.0+cudnn7.6+pytorch+pycharm
+安装教程网上很多
+大体说下过程：anaconda中集成tensorflow，tensorflow下安装python，cuda，cudnn都可以
+对应版本安装，安装pycharm，安装pytorch，最好用镜像速度块，失败了继续安装，一定会成功
+的，下载的本代码需要自己在pycharm中打开，环境选择tensorflow下的python.exe（setting里
+面设置） 下面是代码运行过程，最好用terminal运行
+有任何问题邮件我912487628@qq.com
+欢迎提问，谢谢！！
+
+#****************************************************#
+
+
+
+
+conda create -n tensorflowpip python=3.7
+一 、利用官网权重进行识别
+
+1.cd进入目标文件夹
+2.输入python convert.py生成tf可用的模型
+3.识别
+对图片进行预测，并且输出
+python detect.py --image ./data/girl.png
+打开摄像头进行预测
+python detect_video.py --video 0  （1就是外接另一个摄像头）
+对视频流进行预测，并且输出
+python detect_video.py --video renqun.mp4 --output ./output.avi --yolo_score_threshold 0.3
+
+二、训练自己的模型
+1建立数据集文件夹
+2添加图片并且标注
+生成txt文件
+3建立标签文件
+voc2012.names
+4生成tfrecord文件(train val)
+python tools/voc2012.py --data_dir ./VOCdevkit/VOC2012 --split train --output_file
+./data/voc2012_train.tfrecord --classes ./data/voc2012.names
+python tools/voc2012.py --data_dir ./VOCdevkit/VOC2012 --split val --output_file
+./data/voc2012_val.tfrecord --classes ./data/voc2012.names
+5迁移训练
+python train.py --dataset ./data/voc2012_train.tfrecord --val_dataset
+./data/voc2012_val.tfrecord --classes ./data/voc2012.names --num_classes 20
+--mode fit --transfer darknet --batch_size 8 --epochs 20 --weights ./checkpoints/yolov3.tf
+--weights_num_classes 80(b站大佬提供的好像并不能行)
+python train.py --batch_size 4 --dataset ./data/voc2012_train.tfrecord --val_dataset ./data/voc2012_val.tfrecord --classes ./data/voc2012.names --epochs 20 --mode fit --transfer darknet --weights ./checkpoints/yolov3.tf （正解）
+
+6模型测试
+python detect.py --classes ./data/voc2012.names --weights ./checkpoints/yolov3_train_5.tf  --image ./data/street.jpg --yolo_score_threshold 0.3//测试图片
+python detect_video.py --classes ./data/voc2012.names --weights ./checkpoints/yolov3_train_5.tf  --video renqun.mp4  --yolo_score_threshold 0.3//测试视频
+python detect_video.py --classes ./data/voc2012.names --weights ./checkpoints/yolov3_train_5.tf --video renqun.mp4 --output ./output.avi --yolo_score_threshold 0.3//保存视频
+
+--yolo_score_threshold 0.3(设置分数阈值，源码0.5，这里给出0.3是为了好画框)
+
+
+整篇有个漏点  需要自己利用插件进行标注得到txt文件
+
+
